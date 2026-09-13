@@ -112,10 +112,11 @@ if __name__ == '__main__':
     checkpointer = Checkpointer(model, optimizer, scheduler, args.output_dir, is_master)
     evaluator = Evaluator(val_img_loader, val_txt_loader)
 
-    start_time = time.time()
-    top1 = evaluator.eval(model.eval())
-    end_time = time.time()
-    logger.info( "test done. Time: {:.3f}[s]".format(end_time-start_time))
+    if args.eval_after_epoch is None:
+        start_time = time.time()
+        top1 = evaluator.eval(model.eval())
+        end_time = time.time()
+        logger.info( "test done. Time: {:.3f}[s]".format(end_time-start_time))
 
     start_epoch = 1
     if args.resume:

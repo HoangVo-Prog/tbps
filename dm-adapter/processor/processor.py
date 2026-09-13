@@ -15,6 +15,7 @@ def do_train(start_epoch, args, model, train_loader, evaluator, optimizer,
              scheduler, checkpointer):
     log_period = args.log_period
     eval_period = args.eval_period
+    eval_after_epoch = getattr(args, "eval_after_epoch", None)
     device = "cuda"
     num_epoch = args.num_epoch
     arguments = {}
@@ -105,7 +106,7 @@ def do_train(start_epoch, args, model, train_loader, evaluator, optimizer,
                 "Epoch {} done. Time per batch: {:.3f}[s] Speed: {:.1f}[samples/s]"
                 .format(epoch, time_per_batch,
                         train_loader.batch_size / time_per_batch))
-        if epoch % eval_period == 0:
+        if (eval_after_epoch is None or epoch >= eval_after_epoch) and epoch % eval_period == 0:
             if get_rank() == 0:
                 logger.info("Validation Results - Epoch: {}".format(epoch))
                 if args.distributed:

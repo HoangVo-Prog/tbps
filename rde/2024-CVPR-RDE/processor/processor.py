@@ -172,6 +172,7 @@ def do_train(start_epoch, args, model, train_loader, evaluator, optimizer,
 
     log_period = args.log_period
     eval_period = args.eval_period
+    eval_after_epoch = getattr(args, "eval_after_epoch", None)
     device = "cuda"
     num_epoch = args.num_epoch
     arguments = {}
@@ -193,6 +194,7 @@ def do_train(start_epoch, args, model, train_loader, evaluator, optimizer,
     tb_writer = SummaryWriter(log_dir=args.output_dir)
 
     best_top1 = 0.0
+    best_epoch = None
     # evaluator.eval(model.eval())
     # train
     sims = []
@@ -258,7 +260,7 @@ def do_train(start_epoch, args, model, train_loader, evaluator, optimizer,
                 "Epoch {} done. Time per batch: {:.3f}[s] Speed: {:.1f}[samples/s]"
                 .format(epoch, time_per_batch,
                         train_loader.batch_size / time_per_batch))
-        if epoch % eval_period == 0:
+        if (eval_after_epoch is None or epoch >= eval_after_epoch) and epoch % eval_period == 0:
             if get_rank() == 0:
                 logger.info("Validation Results - Epoch: {}".format(epoch))
                 if args.distributed:
@@ -269,11 +271,15 @@ def do_train(start_epoch, args, model, train_loader, evaluator, optimizer,
                 torch.cuda.empty_cache()
                 if best_top1 < top1:
                     best_top1 = top1
+                    best_epoch = epoch
                     arguments["epoch"] = epoch
                     checkpointer.save("best", **arguments)
  
     if get_rank() == 0:
-        logger.info(f"best R1: {best_top1} at epoch {arguments['epoch']}")
+        if best_epoch is None:
+            logger.info("No validation results were produced; best checkpoint was not saved.")
+        else:
+            logger.info(f"best R1: {best_top1} at epoch {best_epoch}")
 
     arguments["epoch"] = epoch
     checkpointer.save("last", **arguments)
