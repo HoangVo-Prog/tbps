@@ -96,7 +96,7 @@ def do_train(start_epoch, args, model, train_loader, evaluator, optimizer,
                 "Epoch {} done. Time per batch: {:.3f}[s] Speed: {:.1f}[samples/s]"
                 .format(epoch, time_per_batch,
                         train_loader.batch_size / time_per_batch))
-        if epoch % eval_period == 0:
+        if epoch >= args.eval_after_epoch and epoch % eval_period == 0:
             if get_rank() == 0:
                 logger.info("Validation Results - Epoch: {}".format(epoch))
                 if args.distributed:
@@ -110,7 +110,7 @@ def do_train(start_epoch, args, model, train_loader, evaluator, optimizer,
                     arguments["epoch"] = epoch
                     checkpointer.save("best", **arguments)
     if get_rank() == 0:
-        logger.info(f"best R1: {best_top1} at epoch {arguments['epoch']}")
+        logger.info(f"best R1: {best_top1} at epoch {arguments.get('epoch', 'N/A')}")
 
 
 def do_inference(model, test_img_loader, test_txt_loader):
