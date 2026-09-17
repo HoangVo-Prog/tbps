@@ -9,4 +9,5 @@ python train.py \
 --MLM \
 --dataset_name $DATASET_NAME \
 --loss_names 'sdm+mlm+id' \
---num_epoch 60
+--num_epoch 60 \
+--root_dir ./data

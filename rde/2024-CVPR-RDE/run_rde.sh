@@ -1,5 +1,5 @@
 #!/bin/bash
-root_dir=/home/qinyang/projects/data
+root_dir=./data
 tau=0.015 
 margin=0.1
 noisy_rate=0.0  #0.0 0.2 0.5 0.8

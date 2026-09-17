@@ -13,7 +13,7 @@ python train.py \
 --dataset_name $DATASET_NAME \
 --loss_names 'sdm+aux' \
 --num_epoch 60 \
---root_dir '.../dataset_reid' \
+--root_dir './data' \
 --lr 3e-4 \
 --num_experts 6 \
 --topk 2 \
